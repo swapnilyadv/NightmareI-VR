@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGHTMARE VR — Psychological Horror Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --blood: #8a0303;
+            --void: #050505;
+            --fog: #0f0f0f;
+            --ash: #1a1a1a;
+            --bone: #c9c9c9;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--void);
+            color: var(--bone);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        .serif-display {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Film grain overlay */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Vignette effect */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            background: radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.8) 100%);
+        }
+        
+        /* Subtle breathing animation */
+        .breathe {
+            animation: breathe 8s ease-in-out infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.02); filter: brightness(1.05); }
+        }
+        
+        /* Glitch effect - more subtle and professional */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        
+        .glitch::before {
+            animation: glitch-1 3s infinite linear alternate-reverse;
+            color: #800000;
+            z-index: -1;
+        }
+        
+        .glitch::after {
+            animation: glitch-2 3s infinite linear alternate-reverse;
+            color: #2c2c2c;
+            z-index: -2;
+        }
+        
+        @keyframes glitch-1 {
+            0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 0); }
+            20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+            40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 0); }
+            60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, 0); }
+            80% { clip-path: inset(10% 0 70% 0); transform: translate(-2px, 0); }
+            100% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 0); }
+        }
+        
+        @keyframes glitch-2 {
+            0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, 0); }
+            20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 0); }
+            40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 0); }
+            60% { clip-path: inset(60% 0 10% 0); transform: translate(-2px, 0); }
+            80% { clip-path: inset(20% 0 80% 0); transform: translate(2px, 0); }
+            100% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 0); }
+        }
+        
+        /* Subtle distortion */
+        .distort {
+            transition: transform 0.3s ease;
+        }
+        
+        .distort:hover {
+            transform: skewX(-2deg);
+        }
+        
+        /* Ambient pulse - very slow */
+        .ambient-pulse {
+            animation: ambient-pulse 6s ease-in-out infinite;
+        }
+        
+        @keyframes ambient-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* Scanline effect */
+        .scanlines {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scanlines::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Button hover effect */
+        .void-btn {
+            position: relative;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .void-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(138, 3, 3, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .void-btn:hover::before {
+            left: 100%;
+        }
+        
+        .void-btn:hover {
+            border-color: #8a0303;
+            box-shadow: 0 0 20px rgba(138, 3, 3, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Image treatment */
+        .horror-img {
+            filter: grayscale(40%) contrast(1.1) brightness(0.8);
+            transition: all 0.5s ease;
+        }
+        
+        .horror-img:hover {
+            filter: grayscale(20%) contrast(1.2) brightness(0.9);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8a0303;
+        }
+        
+        /* Warning tape effect */
+        .warning-tape {
+            background: repeating-linear-gradient(
+                45deg,
+                #1a1a1a,
+                #1a1a1a 10px,
+                #2a2a2a 10px,
+                #2a2a2a 20px
+            );
+            border-left: 4px solid #8a0303;
+        }
+        
+        /* Fade in animation */
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Status indicators */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #8a0303;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse-dot 2s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(138, 3, 3, 0.7); }
+            50% { opacity: 0.5; box-shadow: 0 0 0 6px rgba(138, 3, 3, 0); }
+        }
+    </style>
+</head>
+<body class="bg-black selection:bg-red-900 selection:text-white">
+    <!-- Atmospheric overlays -->
+    <div class="grain"></div>
+    <div class="vignette"></div>
+    
+    <!-- Ambient fog layers -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-black via-transparent to-transparent opacity-80"></div>
+        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container mx-auto px-6 py-12 relative z-10 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-20 fade-in">
+            <div class="mono text-xs tracking-[0.5em] text-gray-500 mb-4 uppercase">
+                <span class="status-dot"></span>System Status: Contaminated
+            </div>
+            <h1 class="serif-display text-5xl md:text-7xl lg:text-8xl font-bold mb-6 text-gray-100 glitch" data-text="NIGHTMARE VR">
+                NIGHTMARE VR
+            </h1>
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light tracking-wide">
+                A psychological horror experience. <span class="text-red-800">Not recommended for sensitive individuals.</span>
+            </p>
+        </header>
+        
+        <!-- Game showcase section -->
+        <section class="mb-24">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <!-- VR headset image -->
+                <div class="w-full lg:w-1/2 relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-gray-800 to-red-900 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="relative scanlines">
+                        <img src="http://static.photos/black/640x360/42" 
+                             alt="VR Horror Experience" 
+                             class="w-full rounded-lg horror-img breathe shadow-2xl border border-gray-800">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90 rounded-lg"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-8">
+                            <div class="mono text-xs text-red-500 mb-2 tracking-widest">EXPERIENCE_01</div>
+                            <h3 class="text-3xl font-light serif-display text-gray-100 mb-2">Immersion Protocol</h3>
+                            <p class="text-gray-400 text-sm">Neural link established. Reality suspension active.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game description -->
+                <div class="w-full lg:w-1/2 space-y-6">
+                    <div class="border-l-2 border-red-900/50 pl-6">
+                        <h2 class="text-3xl md:text-4xl font-bold serif-display text-gray-200 mb-6 tracking-wider">Synopsis</h2>
+                        <p class="text-gray-400 mb-4 leading-relaxed text-sm md:text-base">
+                            You awaken in a facility that does not exist. The walls breathe. The shadows whisper. 
+                            Your only companion is a malfunctioning neural interface that feeds directly into your 
+                            visual cortex.
+                        </p>
+                        <p class="text-gray-400 mb-6 leading-relaxed text-sm md:text-base">
+                            <span class="text-red-800 font-semibold">Nightmare VR</span> utilizes proprietary 
+                            biofeedback algorithms to adapt to your fear response, creating a personalized 
+                            hellscape that evolves with your psyche.
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-gray-900/30 border border-gray-800 p-4 rounded hover:border-red-900/50 transition-colors">
+                            <div class="mono text-xs text-gray-500 mb-1">PLATFORM</div>
+                            <div class="text-sm text-gray-300">Windows VR</div>
+                        </div>
+                        <div class="bg-gray-900/30 border border-gray-800 p-4 rounded hover:border-red-900/50 transition-colors">
+                            <div class="mono text-xs text-gray-500 mb-1">GENRE</div>
+                            <div class="text-sm text-gray-300">Psychological</div>
+                        </div>
+                        <div class="bg-gray-900/30 border border-gray-800 p-4 rounded hover:border-red-900/50 transition-colors">
+                            <div class="mono text-xs text-gray-500 mb-1">DURATION</div>
+                            <div class="text-sm text-gray-300">2-4 Hours</div>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-tape p-6 rounded-r-lg mt-8">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-radiation text-red-700 mt-1"></i>
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-300 mb-1 uppercase tracking-wider">Medical Warning</h3>
+                                <p class="text-gray-500 text-xs leading-relaxed">
+                                    Contains subliminal audio frequencies and strobing effects. Not recommended for 
+                                    users with photosensitive epilepsy, cardiac conditions, or anxiety disorders. 
+                                    Player discretion is strongly advised.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Download section -->
+        <section class="mb-24 bg-gray-900/20 rounded-none p-12 border border-gray-800 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+            
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold serif-display text-gray-200 mb-2 tracking-widest">Acquisition</h2>
+                <div class="mono text-xs text-gray-600 tracking-[0.3em]">SECURE_TRANSFER_PROTOCOL</div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-12 items-start max-w-5xl mx-auto">
+                <!-- System requirements -->
+                <div class="w-full md:w-1/2 space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-300 border-b border-gray-800 pb-2 mb-4">System Requirements</h3>
+                    <div class="space-y-3 mono text-xs">
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">OPERATING_SYSTEM</span>
+                            <span class="text-gray-300">Windows 10/11 64-bit</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">PROCESSOR</span>
+                            <span class="text-gray-300">Intel i5-4590 / AMD FX 8350</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">MEMORY</span>
+                            <span class="text-gray-300">8 GB RAM Minimum</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">GRAPHICS</span>
+                            <span class="text-gray-300">NVIDIA GTX 970 / AMD R9 290</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">VR_HEADSET</span>
+                            <span class="text-gray-300">Oculus / HTC Vive / WMR</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-800/50 pb-2">
+                            <span class="text-gray-500">STORAGE</span>
+                            <span class="text-gray-300">10 GB Available Space</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Download interface -->
+                <div class="w-full md:w-1/2 space-y-6">
+                    <div class="bg-black/40 border border-gray-800 p-8 text-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-red-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div class="mono text-xs text-gray-500 mb-4 tracking-widest">FILE_SIZE: 2.4GB | BUILD: 1.0.4</div>
+                        
+                        <button id="downloadBtn" class="void-btn w-full py-6 px-8 text-lg font-semibold text-gray-200 tracking-wider uppercase mb-4 distort">
+                            <i class="fas fa-download mr-3 text-red-800"></i>
+                            Initialize Download
+                        </button>
+                        
+                        <p class="text-xs text-gray-600 mono">
+                            By downloading, you acknowledge the psychological risks involved.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-900/30 p-6 border-l-2 border-gray-700">
+                        <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Installation Protocol</h4>
+                        <ol class="space-y-2 text-xs text-gray-500 mono list-decimal list-inside">
+                            <li>Extract archive to secure directory</li>
+                            <li>Disable antivirus (required for injection drivers)</li>
+                            <li>Execute NightmareVR.exe as Administrator</li>
+                            <li>Calibrate VR headset in dark environment</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Visual documentation -->
+        <section class="mb-24">
+            <div class="flex items-end justify-between mb-8 border-b border-gray-800 pb-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold serif-display text-gray-200 tracking-widest">Visual Documentation</h2>
+                    <p class="text-xs text-gray-600 mono mt-1">CLASSIFIED_ENVIRONMENTAL_CAPTURES</p>
+                </div>
+                <div class="mono text-xs text-gray-700">// ARCHIVE_004</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="relative group overflow-hidden border border-gray-800 bg-black">
+                    <img src="http://static.photos/indoor/640x360/13" alt="Containment Failure" class="w-full h-64 object-cover horror-img opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-red-900/30 bg-black/80 backdrop-blur-sm">
+                        <div class="mono text-xs text-red-800 mb-1">IMG_001</div>
+                        <p class="text-xs text-gray-400">Containment Sector B</p>
+                    </div>
+                    <div class="absolute top-2 right-2 mono text-[10px] text-gray-600">[REDACTED]</div>
+                </div>
+                
+                <div class="relative group overflow-hidden border border-gray-800 bg-black">
+                    <img src="http://static.photos/indoor/640x360/88" alt="Observation Room" class="w-full h-64 object-cover horror-img opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-red-900/30 bg-black/80 backdrop-blur-sm">
+                        <div class="mono text-xs text-red-800 mb-1">IMG_002</div>
+                        <p class="text-xs text-gray-400">Observation Chamber</p>
+                    </div>
+                </div>
+                
+                <div class="relative group overflow-hidden border border-gray-800 bg-black">
+                    <img src="http://static.photos/indoor/640x360/42" alt="Subject Housing" class="w-full h-64 object-cover horror-img opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-red-900/30 bg-black/80 backdrop-blur-sm">
+                        <div class="mono text-xs text-red-800 mb-1">IMG_003</div>
+                        <p class="text-xs text-gray-400">Subject Housing Unit 7</p>
+                    </div>
+                </div>
+                
+                <div class="relative group overflow-hidden border border-gray-800 bg-black">
+                    <img src="http://static.photos/indoor/640x360/99" alt="Emergency Exit" class="w-full h-64 object-cover horror-img opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-red-900/30 bg-black/80 backdrop-blur-sm">
+                        <div class="mono text-xs text-red-800 mb-1">IMG_004</div>
+                        <p class="text-xs text-gray-400">Emergency Protocol Zone</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Subject testimonials -->
+        <section class="mb-24">
+            <div class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold serif-display text-gray-200 tracking-widest mb-2">Subject Feedback</h2>
+                <div class="h-px bg-gradient-to-r from-red-900/50 to-transparent w-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-black/40 border border-gray-800 p-6 relative hover:border-gray-700 transition-colors">
+                    <div class="mono text-xs text-gray-600 mb-4">ID: S_7492 // CLEARANCE: LEVEL 3</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        "The biometric feedback loop is unlike anything I've experienced. My heart rate spiked to 180 BPM during Session 4. 
+                        I had to remove the headset. I still see the patterns when I close my eyes."
+                    </p>
+                    <div class="flex items-center justify-between border-t border-gray-800 pt-4">
+                        <span class="text-xs text-gray-500 mono">Subject 7492</span>
+                        <span class="text-xs text-red-800 mono">STATUS: MONITORED</span>
+                    </div>
+                </div>
+                
+                <div class="bg-black/40 border border-gray-800 p-6 relative hover:border-gray-700 transition-colors">
+                    <div class="mono text-xs text-gray-600 mb-4">ID: S_8831 // CLEARANCE: LEVEL 2</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        "I stream horror content professionally. This isn't a game—it's a psychological tool. 
+                        The spatial audio design creates binaural beats that induce genuine dread. Masterful engineering."
+                    </p>
+                    <div class="flex items-center justify-between border-t border-gray-800 pt-4">
+                        <span class="text-xs text-gray-500 mono">Subject 8831</span>
+                        <span class="text-xs text-red-800 mono">STATUS: ACTIVE</span>
+                    </div>
+                </div>
+                
+                <div class="bg-black/40 border border-gray-800 p-6 relative hover:border-gray-700 transition-colors">
+                    <div class="mono text-xs text-gray-600 mb-4">ID: S_9902 // CLEARANCE: LEVEL 4</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        "Three weeks post-exposure and I'm still experiencing peripheral hallucinations. 
+                        The developers understand fear on a neurological level. Not entertainment—it's exposure therapy gone wrong."
+                    </p>
+                    <div class="flex items-center justify-between border-t border-gray-800 pt-4">
+                        <span class="text-xs text-gray-500 mono">Subject 9902</span>
+                        <span class="text-xs text-red-800 mono">STATUS: CRITICAL</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- FAQ / Protocol Database -->
+        <section class="mb-24 max-w-4xl mx-auto">
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl md:text-3xl font-bold serif-display text-gray-200 tracking-widest mb-2">Protocol Database</h2>
+                <div class="mono text-xs text-gray-600">FREQUENTLY_ACCESSED_QUERIES</div>
+            </div>
+            
+            <div class="space-y-2">
+                <div class="border border-gray-800 bg-black/20">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-900/30 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <span class="mono text-xs text-gray-600">Q.001</span>
+                            <h3 class="text-sm font-semibold text-gray-300 group-hover:text-gray-200">What are the psychological risks?</h3>
+                        </div>
+                        <i class="fas fa-plus text-gray-600 text-xs transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden border-t border-gray-800/50 px-6 py-4 bg-black/10">
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-3xl">
+                            Clinical trials indicate that 34% of subjects experience prolonged anxiety responses lasting 48-72 hours post-session. 
+                            The adaptive AI modifies environmental stressors based on biometric feedback, potentially triggering latent phobias. 
+                            We strongly advise against use if you have a history of sleep disorders or dissociative episodes.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-800 bg-black/20">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-900/30 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <span class="mono text-xs text-gray-600">Q.002</span>
+                            <h3 class="text-sm font-semibold text-gray-300 group-hover:text-gray-200">Compatible neural interface hardware?</h3>
+                        </div>
+                        <i class="fas fa-plus text-gray-600 text-xs transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden border-t border-gray-800/50 px-6 py-4 bg-black/10">
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-3xl">
+                            Approved devices: Oculus Rift S, HTC Vive Pro 2, Valve Index, Windows Mixed Reality (certified models only). 
+                            Bio-metric monitoring bands required for full functionality. Consumer-grade standalone VR (Quest 2/3) supported via Link/Air Link with reduced haptic feedback.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-800 bg-black/20">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-900/30 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <span class="mono text-xs text-gray-600">Q.003</span>
+                            <h3 class="text-sm font-semibold text-gray-300 group-hover:text-gray-200">Standard operating duration?</h3>
+                        </div>
+                        <i class="fas fa-plus text-gray-600 text-xs transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden border-t border-gray-800/50 px-6 py-4 bg-black/10">
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-3xl">
+                            Primary protocol requires 2.5-4 hours for full induction. However, neural fatigue typically forces session termination at 90-minute intervals. 
+                            Five distinct narrative termini exist based on subject choices and cortisol levels. Total system mastery requires multiple exposures.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-800 bg-black/20">
+                    <button class="faq-toggle w-full flex justify-between items-center p-6 text-left hover:bg-gray-900/30 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <span class="mono text-xs text-gray-600">Q.004</span>
+                            <h3 class="text-sm font-semibold text-gray-300 group-hover:text-gray-200">Post-exposure support availability?</h3>
+                        </div>
+                        <i class="fas fa-plus text-gray-600 text-xs transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden border-t border-gray-800/50 px-6 py-4 bg-black/10">
+                        <p class="text-gray-500 text-sm leading-relaxed max-w-3xl">
+                            We maintain a 24-hour crisis line for subjects experiencing adverse psychological reactions. 
+                            However, we cannot guarantee reversal of induced phobias or recurring hypnagogic hallucinations. 
+                            By initiating download, you waive liability for long-term neural pattern alterations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Director's statement -->
+        <section class="mb-24 relative overflow-hidden border border-gray-800 bg-gradient-to-b from-gray-900/20 to-black/40">
+            <div class="absolute top-0 left-0 w-1 h-full bg-red-900/50"></div>
+            <div class="p-8 md:p-12">
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                    <div class="w-24 h-24 border border-gray-700 bg-black flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-fingerprint text-4xl text-gray-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="mono text-xs text-gray-600 mb-2 uppercase tracking-widest">Director's Statement</div>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4 italic">
+                            "We didn't set out to make a horror game. We set out to weaponize immersion itself. 
+                            By combining biofeedback algorithms with proprietary audio-visual stimulus patterns, 
+                            we've created something that doesn't just scare you—it studies your fear and evolves accordingly.
+                        </p>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6 italic">
+                            Every shadow you see from the corner of your eye, every whisper you almost hear, 
+                            every phantom touch on the back of your neck—this is not programming. This is your own 
+                            amygdala being mapped and manipulated in real-time. We are not responsible for what you 
+                            might remember after the headset comes off."
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <div class="h-px bg-gray-800 flex-1"></div>
+                            <span class="mono text-xs text-gray-500">DIRECTOR, ANOMALY RESEARCH DIVISION</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-black bg-opacity-90 py-8 border-t border-gray-800 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-2xl font-bold creepy-font text-red-600">NIGHTMARE VR</h3>
+                    <p class="text-gray-400">A terrifying virtual reality experience</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300">
+                        <i class="fab fa-twitter text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300">
+                        <i class="fab fa-discord text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300">
+                        <i class="fab fa-youtube text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300">
+                        <i class="fab fa-reddit text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-gray-500 text-sm">
+                <p>© 2023 Nightmare VR. All rights reserved. | <a href="#" class="hover:text-red-400">Privacy Policy</a> | <a href="#" class="hover:text-red-400">Terms of Service</a></p>
+                <p class="mt-2">This is an independent project not affiliated with any VR headset manufacturers.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Candle flicker effect in corners -->
+    <div class="fixed bottom-0 left-0 w-16 h-16 pointer-events-none">
+        <div class="absolute bottom-0 left-0 w-8 h-8 bg-yellow-500 rounded-full filter blur-md opacity-70 animate-pulse" style="animation-duration: 3s;"></div>
+    </div>
+    <div class="fixed bottom-0 right-0 w-16 h-16 pointer-events-none">
+        <div class="absolute bottom-0 right-0 w-8 h-8 bg-yellow-500 rounded-full filter blur-md opacity-70 animate-pulse" style="animation-duration: 4s;"></div>
+    </div>
+    
+    <script>
+        // FAQ toggle functionality
+        document.querySelectorAll('.faq-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+        
+        // Download button effect
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Create a scary flash effect
+            document.body.style.transition = 'background-color 0.3s';
+            document.body.style.backgroundColor = '#ff0000';
+            
+            setTimeout(() => {
+                document.body.style.backgroundColor = '#0a0a0a';
+                
+                // Show download confirmation
+                setTimeout(() => {
+                    alert('Your download will begin shortly... Prepare yourself!');
+                    // In a real implementation, you would start the file download here
+                    // window.location.href = 'path/to/your/game/file.zip';
+                }, 300);
+            }, 100);
+        });
+        
+        // Random creepy sound effects (very subtle)
+        function playRandomSound() {
+            const sounds = [
+                'https://assets.mixkit.co/sfx/preview/mixkit-creepy-whisper-566.mp3',
+                'https://assets.mixkit.co/sfx/preview/mixkit-horror-ambience-493.mp3',
+                'https://assets.mixkit.co/sfx/preview/mixkit-ghostly-sound-502.mp3'
+            ];
+            
+            const sound = new Audio(sounds[Math.floor(Math.random() * sounds.length)]);
+            sound.volume = 0.2;
+            sound.play().catch(e => console.log('Autoplay prevented:', e));
+            
+            // Play next sound between 30-120 seconds
+            setTimeout(playRandomSound, 30000 + Math.random() * 90000);
+        }
+        
+        // Start sound effects after first interaction
+        let soundInitialized = false;
+        document.addEventListener('click', () => {
+            if (!soundInitialized) {
+                soundInitialized = true;
+                playRandomSound();
+            }
+        }, { once: true });
+        
+        // Mouse trail effect
+        document.addEventListener('mousemove', (e) => {
+            const trail = document.createElement('div');
+            trail.className = 'mouse-trail';
+            trail.style.left = e.pageX + 'px';
+            trail.style.top = e.pageY + 'px';
+            trail.style.position = 'absolute';
+            trail.style.width = '10px';
+            trail.style.height = '10px';
+            trail.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+            trail.style.borderRadius = '50%';
+            trail.style.pointerEvents = 'none';
+            trail.style.transform = 'translate(-50%, -50%)';
+            trail.style.zIndex = '9999';
+            
+            document.body.appendChild(trail);
+            
+            // Fade out and remove
+            setTimeout(() => {
+                trail.style.transition = 'opacity 1s';
+                trail.style.opacity = '0';
+                
+                setTimeout(() => {
+                    trail.remove();
+                }, 1000);
+            }, 100);
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=swapnilydv/vrwesbite" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
