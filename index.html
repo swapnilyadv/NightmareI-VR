@@ -395,7 +395,7 @@
                     <div class="bg-black/40 border border-gray-800 p-8 text-center relative overflow-hidden group">
                         <div class="absolute inset-0 bg-red-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
-                        <div class="mono text-xs text-gray-500 mb-4 tracking-widest">FILE_SIZE: 2.4GB | BUILD: 1.0.4</div>
+                        <div class="mono text-xs text-gray-500 mb-4 tracking-widest">FILE_SIZE: 284MB | BUILD: 1.0.0</div>
                         
                         <button id="downloadBtn" class="void-btn w-full py-6 px-8 text-lg font-semibold text-gray-200 tracking-wider uppercase mb-4 distort">
                             <i class="fas fa-download mr-3 text-red-800"></i>
@@ -683,15 +683,27 @@
             document.body.style.transition = 'background-color 0.3s';
             document.body.style.backgroundColor = '#ff0000';
             
+            // Change button text to reflect process
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-3 text-red-800"></i>INITIALIZING TRANSFER...';
+            downloadBtn.disabled = true;
+            
             setTimeout(() => {
                 document.body.style.backgroundColor = '#0a0a0a';
                 
-                // Show download confirmation
+                // Final stage and download
                 setTimeout(() => {
-                    alert('Your download will begin shortly... Prepare yourself!');
-                    // In a real implementation, you would start the file download here
-                    // window.location.href = 'path/to/your/game/file.zip';
-                }, 300);
+                    downloadBtn.innerHTML = '<i class="fas fa-radiation fa-pulse mr-3 text-red-800"></i>PREPARE YOURSELF...';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'NIGHTMARE.apk';
+                        // Re-enable after some time
+                        setTimeout(() => {
+                            downloadBtn.innerHTML = originalText;
+                            downloadBtn.disabled = false;
+                        }, 5000);
+                    }, 800);
+                }, 400);
             }, 100);
         });
         
@@ -748,5 +760,5 @@
             }, 100);
         });
     </script>
-<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=swapnilydv/vrwesbite" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</body>
 </html>
