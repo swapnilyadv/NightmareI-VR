@@ -696,7 +696,9 @@
                     downloadBtn.innerHTML = '<i class="fas fa-radiation fa-pulse mr-3 text-red-800"></i>PREPARE YOURSELF...';
                     
                     setTimeout(() => {
-                        window.location.href = 'NIGHTMARE.apk';
+                        // Open Google Drive link for the APK
+                        window.open('https://drive.google.com/uc?id=1UCpOj3jtAT4UE8GCc6itRgQhXzTkX5Ao&export=download', '_blank');
+                        
                         // Re-enable after some time
                         setTimeout(() => {
                             downloadBtn.innerHTML = originalText;
